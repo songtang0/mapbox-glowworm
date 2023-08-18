@@ -1,0 +1,51 @@
+{
+  "name": "mapbox-glowworm",
+  "version": "1.0.10",
+  "description": "mapbox-gl地图的萤火虫打点效果",
+  "main": "dist/mapbox-glowworm.umd.js",
+  "module": "dist/mapbox-glowworm.umd.js",
+  "browser": "dist/mapbox-glowworm.umd.js",
+  "types": "types/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist/*.js",
+    "types"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/songtang0/mapbox-glowworm.git"
+  },
+  "keywords": [
+    "mapbox-gl",
+    "地图",
+    "萤火虫",
+    "光影",
+    "打点"
+  ],
+  "author": "songtang0",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/songtang0/mapbox-glowworm/issues"
+  },
+  "homepage": "https://github.com/songtang0/mapbox-glowworm#readme",
+  "devDependencies": {
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@types/lodash-es": "^4.17.8",
+    "@types/mapbox-gl": "^2.7.13",
+    "@types/node": "^20.5.0",
+    "lodash-es": "^4.17.21",
+    "mapbox-gl": "^2.15.0",
+    "rollup": "^3.28.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "tslib": "^2.6.1",
+    "typescript": "^5.1.6"
+  }
+}
