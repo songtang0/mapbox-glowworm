@@ -10,7 +10,6 @@
   "files": [
     "dist/*.js",
     "types",
-    "images"
   ],
   "scripts": {
     "build": "rollup -c",
