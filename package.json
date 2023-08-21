@@ -9,7 +9,8 @@
   "type": "module",
   "files": [
     "dist/*.js",
-    "types"
+    "types",
+    "images"
   ],
   "scripts": {
     "build": "rollup -c",
