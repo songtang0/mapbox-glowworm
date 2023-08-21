@@ -11,6 +11,7 @@ node_modules
 coverage
 *.local
 src
+mapbox-glowworm-example/
 
 /cypress/videos/
 /cypress/screenshots/
