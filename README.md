@@ -3,7 +3,7 @@
 
 效果如下：
 
-![效果1](./images/result3.jpg)
+![效果1](https://raw.githubusercontent.com/songtang0/mapbox-glowworm-example/main/images/result3.jpg)
 
 在线体验demo(请配置自己的mapbox token): [open in codesandbox](https://codesandbox.io/p/github/songtang0/mapbox-glowworm-example/main?workspaceId=55a67d7e-e330-43d3-9eae-802b79fee3a9)
 # example
