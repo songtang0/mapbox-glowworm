@@ -1,6 +1,6 @@
 {
   "name": "mapbox-glowworm",
-  "version": "1.0.10",
+  "version": "1.10.0-beta.0",
   "description": "mapbox-gl地图的萤火虫打点效果",
   "main": "dist/mapbox-glowworm.umd.js",
   "module": "dist/mapbox-glowworm.umd.js",
