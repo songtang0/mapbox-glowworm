@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/songtang0/mapbox-glowworm.git"
+    "url": ""
   },
   "keywords": [
     "mapbox-gl",
@@ -29,9 +29,9 @@
   "author": "songtang0",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/songtang0/mapbox-glowworm/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/songtang0/mapbox-glowworm#readme",
+  "homepage": "",
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.22.10",

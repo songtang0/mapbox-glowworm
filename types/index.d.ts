@@ -39,4 +39,5 @@ export class GlowwormMap{
   constructor(map: Map);
   addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions): void;
   addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function): void;
+  addSimpleCityLayer(): void;
 }
