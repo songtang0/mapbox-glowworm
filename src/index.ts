@@ -1,6 +1,8 @@
 import mapbox from 'mapbox-gl';
 import type {Map, AnySourceData} from 'mapbox-gl';
 import type {MapDotBack, GlowwormMapOptions} from '../types';
+import {cloneDeep} from 'lodash-es';
+import {gcj02towgs84} from './utils/coordinateTransform';
 import {
   transformRandomNumToGps,
   getEmptyMapData,
@@ -15,6 +17,7 @@ import {
   defaultOutGlowwormColorList
 } from './data/defaultMapConfigData';
 import {MapOptions} from '../types';
+import {FeatureCollection} from 'geojson';
 
 export class GlowwormMap {
   // private layerName = '';
@@ -192,6 +195,90 @@ export class GlowwormMap {
         'icon-opacity': 0.63,
         'text-halo-blur': 1,
       },
+    });
+  }
+  addChinaCountryBoundaryLine(json: FeatureCollection) {
+    const transformGpsToWgs84 = (chinaJson: any) => {
+      const {coordinates} = chinaJson.features[0].geometry;
+      const resChinaJson = cloneDeep(chinaJson);
+      const transformGps = (childGps: any) =>
+        childGps.map((item: any) => {
+          if (
+            item &&
+            Array.isArray(item) &&
+            item.length === 2 &&
+            typeof item[0] === 'number'
+          ) {
+            return gcj02towgs84(item[0], item[1]);
+          }
+          return transformGps(item);
+        });
+      resChinaJson.features[0].geometry.coordinates = transformGps(coordinates);
+      return resChinaJson;
+    };
+    const lineConfig = {
+      id: 'south-line',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        lineMetrics: true,
+        data: transformGpsToWgs84(json),
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+      },
+      paint: {
+        'line-color': 'rgb(50, 121, 149)',
+        'line-width': 2,
+        'line-opacity': 0.9,
+        'line-dasharray': [4, 0],
+      },
+    };
+    this.map.addLayer(lineConfig as any);
+  }
+  addSimpleTaiWanTitle() {
+    this.map.addSource('taiwan', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [120.99362840456797, 23.916543753069078],
+            },
+            properties: {
+              title: '台湾省',
+            },
+          },
+        ],
+      },
+      cluster: true,
+    });
+    this.map.addLayer({
+      id: 'taiwan',
+      type: 'symbol',
+      source: 'taiwan',
+      minzoom: 2,
+      maxzoom: 12,
+      layout: {
+        'text-field': '{title}',
+        'text-font': ['Open Sans Regular'],
+        'text-size': [
+          'interpolate',
+          ['exponential', 0.1],
+          ['zoom'],
+          5,
+          12,
+          10,
+          28,
+        ],
+      },
+      paint: {
+        'text-color': 'hsl(215, 14%, 82%)'
+      }
     });
   }
 }

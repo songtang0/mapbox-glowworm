@@ -1,4 +1,5 @@
 import type {Expression, Map, StyleFunction} from 'mapbox-gl';
+import type {Feature, FeatureCollection} from 'geojson';
 
 export interface MapDotBack {
   gps: number[];
@@ -40,4 +41,6 @@ export class GlowwormMap{
   addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions): void;
   addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function): void;
   addSimpleCityLayer(): void;
+  addChinaCountryBoundaryLine(json: FeatureCollection):void;
+  addSimpleTaiWanTitle():void;
 }
