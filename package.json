@@ -3,8 +3,8 @@
   "version": "1.1.4-beta.1",
   "description": "mapbox-gl地图的萤火虫打点效果",
   "main": "dist/mapbox-glowworm.esm.js",
-  "module": "dist/mapbox-glowworm.umd.js",
-  "browser": "dist/mapbox-glowworm.umd.js",
+  "module": "dist/mapbox-glowworm.esm.js",
+  "browser": "dist/mapbox-glowworm.esm.js",
   "types": "types/index.d.ts",
   "type": "module",
   "files": [
@@ -26,7 +26,7 @@
     "光影",
     "打点"
   ],
-  "author": "songtang0",
+  "author": "tequila_king",
   "license": "ISC",
   "bugs": {
     "url": ""
