@@ -11,7 +11,7 @@ node_modules
 coverage
 *.local
 mapbox-glowworm-example/
-dist
+dist/
 
 /cypress/videos/
 /cypress/screenshots/
