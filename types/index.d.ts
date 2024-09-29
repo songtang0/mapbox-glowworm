@@ -30,6 +30,9 @@ export interface GlowwormMapOptions extends MapOptions{
   glowwormInnerColorList?: (number | string) []; // 萤火虫打点内环颜色
   glowwormOutColorList?: (number | string) []; // 萤火虫打点外环颜色
 }
+export type ChinaSpecialLayerConfig = {
+  textColor?: string | StyleFunction | Expression;
+}
 
 export default class GlowwormMap{
   data: MapDotBack[];
@@ -39,5 +42,5 @@ export default class GlowwormMap{
   addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function): void;
   addSimpleCityLayer(): void;
   addChinaCountryBoundaryLine(json: FeatureCollection): void;
-  addSimpleTaiWanTitle(): void;
+  addSimpleTaiWanTitle(config: ChinaSpecialLayerConfig): void;
 }

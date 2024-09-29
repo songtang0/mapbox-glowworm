@@ -1,5 +1,5 @@
 import type {Map, AnySourceData} from 'mapbox-gl';
-import type {MapDotBack, GlowwormMapOptions} from '../types';
+import {MapDotBack, GlowwormMapOptions, ChinaSpecialLayerConfig} from '../types';
 import {cloneDeep} from 'lodash-es';
 import {gcj02towgs84} from './utils/coordinateTransform';
 import {
@@ -231,7 +231,8 @@ export default class GlowwormMap {
     };
     this.map.addLayer(lineConfig as any);
   }
-  addSimpleTaiWanTitle() {
+  addSimpleTaiWanTitle(config: ChinaSpecialLayerConfig) {
+    const { textColor } = config;
     this.map.addSource('taiwan', {
       type: 'geojson',
       data: {
@@ -271,7 +272,7 @@ export default class GlowwormMap {
         ],
       },
       paint: {
-        'text-color': 'hsl(215, 14%, 82%)'
+        "text-color": textColor || "rgba(96, 91, 91, 1)",
       }
     });
   }
