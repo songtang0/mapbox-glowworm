@@ -231,8 +231,8 @@ export default class GlowwormMap {
     };
     this.map.addLayer(lineConfig as any);
   }
-  addSimpleTaiWanTitle(config: ChinaSpecialLayerConfig) {
-    const { textColor } = config;
+  addSimpleTaiWanTitle(config?: ChinaSpecialLayerConfig) {
+    const { textColor } = config!;
     this.map.addSource('taiwan', {
       type: 'geojson',
       data: {
