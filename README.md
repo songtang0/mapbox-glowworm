@@ -9,7 +9,7 @@
 # example
 1. 初始化一个GlowwormMap实例并且添加一个萤火虫发光图层
 ```typescript
-import {GlowwormMap} from 'mapbox-glowworm';
+import GlowwormMap from 'mapbox-glowworm';
 
 // ...
 const map = new mapboxgl.Map({
