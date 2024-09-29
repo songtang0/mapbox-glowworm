@@ -1,13 +1,8 @@
-import mapbox from 'mapbox-gl';
 import type {Map, AnySourceData} from 'mapbox-gl';
 import type {MapDotBack, GlowwormMapOptions} from '../types';
 import {cloneDeep} from 'lodash-es';
 import {gcj02towgs84} from './utils/coordinateTransform';
 import {
-  transformRandomNumToGps,
-  getEmptyMapData,
-  getTransformList,
-  getStandardMapData,
   getSourceData
 } from './utils/map';
 import {GLOWWORM1, GLOWWORM2, GLOWWORM3} from './utils/constMap';
@@ -17,22 +12,21 @@ import {
   defaultOutGlowwormColorList
 } from './data/defaultMapConfigData';
 import {MapOptions} from '../types';
-import {FeatureCollection} from 'geojson';
+import type {FeatureCollection} from 'geojson';
 
-export class GlowwormMap {
+export default class GlowwormMap {
   // private layerName = '';
   // private data = [] as MapDotBack[];
   private map = {} as Map;
   private options = {} as GlowwormMapOptions;
 
-  constructor( map: Map, layerName: string) {
-    // this.layerName = layerName;
-    // this.options = options;
+  constructor( map: Map) {
     this.map = map;
   }
 
   addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions) {
     const {
+      dotTypeKey = 'level',
       mapColorList,
       circleBlur,
       circleColor,
@@ -41,9 +35,10 @@ export class GlowwormMap {
       dotSize,
       circleStrokeWidth,
       circleStrokeColor,
+      coordinateSystemType = 'WGS84',
+      needRandom = false,
     } = options || this.options;
-    // mapboxgl.AnyLayer
-    this.map.addSource(layerName, getSourceData(data));
+    this.map.addSource(layerName, getSourceData(data, coordinateSystemType, needRandom));
     this.map.addLayer({
       id: layerName,
       type: 'circle',
@@ -52,7 +47,7 @@ export class GlowwormMap {
         'circle-blur': (circleBlur) ?? 0,
         'circle-color': (circleColor) ?? [
           'match',
-          ['get', 'keyStr'],
+          ['get', dotTypeKey],
           ...(mapColorList || defaultMapColorList),
           'rgba(237,97,147,0.9)',
         ],
@@ -64,11 +59,7 @@ export class GlowwormMap {
           'interpolate',
           ['exponential', 0.1],
           ['zoom'],
-          ...(dotSize ? dotSize : [14.1, 3, 32, 9]),
-          // 14.1, // 小于200m打点变大
-          // 3,
-          // 32,
-          // 9,
+          ...(dotSize ? dotSize : [14.1, 3, 32, 9]), // 小于200m打点变大
         ],
         'circle-stroke-width': (circleStrokeWidth) ?? 0,
         'circle-stroke-color':
@@ -83,16 +74,19 @@ export class GlowwormMap {
     // const glowwormInnerColorList = options?.glowwormInnerColorList || undefined;
     // const glowwormOutColorList = options?.glowwormOutColorList || undefined;
     const {
+      dotTypeKey = 'level',
       glowwormLayerName,
       glowwormInnerColorList ,
       glowwormOutColorList,
+      circleOpacity,
+      circleBlur,
     } = options;
     this.addCommonLayer(data, glowwormLayerName || GLOWWORM1, {
-      circleOpacity: 0.4,
-      circleBlur: 3,
+      circleOpacity: circleOpacity || 0.4,
+      circleBlur: circleBlur || 3,
       circleColor: [
         'match',
-        ['get', 'keyStr'],
+        ['get', dotTypeKey],
         // ...mapGlowwormColorList1, // 外环
         ...(glowwormOutColorList || defaultOutGlowwormColorList),
         'rgba(237,97,147,0.9)',
@@ -108,11 +102,11 @@ export class GlowwormMap {
       ],
     });
     this.addCommonLayer(data, GLOWWORM2, {
-      circleOpacity: 0.4,
-      circleBlur: 3,
+      circleOpacity: circleOpacity || 0.4,
+      circleBlur: circleBlur || 3,
       circleColor: [
         'match',
-        ['get', 'keyStr'],
+        ['get', dotTypeKey],
         ...(glowwormInnerColorList || defaultInnerGlowwormColorList),
         'rgba(237,97,147,0.9)',
       ],
@@ -134,7 +128,7 @@ export class GlowwormMap {
         'interpolate',
         ['exponential', 0.1],
         ['zoom'],
-        14.1, // 小于200m打点变大
+        14.1,
         1.3,
         32,
         2.2,

@@ -15,13 +15,13 @@ export default {
     {
       format: 'esm', // 打包为esm格式
       file: 'dist/mapbox-glowworm.esm.js',
-      name: 'glowworm'
+      name: 'Glowworm'
     },
     {
       format: 'umd', // 打包为umd通用格式
       file: 'dist/mapbox-glowworm.umd.js',
-      name: 'glowworm',
-      minifyInternalExports: true
+      name: 'Glowworm',
+      minifyInternalExports: false
     }
   ],
   plugins: [
