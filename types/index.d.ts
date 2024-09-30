@@ -34,12 +34,20 @@ export type ChinaSpecialLayerConfig = {
   textColor?: string | StyleFunction | Expression;
 }
 
+export interface LayerInstance {
+  layerName: string | string[];
+  updateSource(data: MapDotBack[], callback?: Function):FeatureCollection;
+  show(callback?: Function):void;
+  hide(callback?: Function):void;
+  remove(callback?: Function):void;
+}
+
 export default class GlowwormMap{
   data: MapDotBack[];
   map: Map;
   constructor(map: Map);
-  addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions): void;
-  addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function): void;
+  addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions): LayerInstance;
+  addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function): LayerInstance;
   addSimpleCityLayer(): void;
   addChinaCountryBoundaryLine(json: FeatureCollection): void;
   addSimpleTaiWanTitle(config?: ChinaSpecialLayerConfig): void;

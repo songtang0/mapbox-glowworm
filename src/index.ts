@@ -1,30 +1,30 @@
-import type {Map, AnySourceData} from 'mapbox-gl';
-import {MapDotBack, GlowwormMapOptions, ChinaSpecialLayerConfig} from '../types';
+import type {Map, AnySourceData, GeoJSONSource} from 'mapbox-gl';
+import {MapDotBack, GlowwormMapOptions, ChinaSpecialLayerConfig, LayerInstance} from '../types';
 import {cloneDeep} from 'lodash-es';
 import {gcj02towgs84} from './utils/coordinateTransform';
 import {
+  getStandardMapData,
   getSourceData
 } from './utils/map';
 import {GLOWWORM1, GLOWWORM2, GLOWWORM3} from './utils/constMap';
 import {
   defaultInnerGlowwormColorList,
   defaultMapColorList,
-  defaultOutGlowwormColorList
+  defaultOutGlowwormColorList,
+  mapOpacityColor
 } from './data/defaultMapConfigData';
 import {MapOptions} from '../types';
 import type {FeatureCollection} from 'geojson';
 
 export default class GlowwormMap {
-  // private layerName = '';
-  // private data = [] as MapDotBack[];
   private map = {} as Map;
   private options = {} as GlowwormMapOptions;
 
-  constructor( map: Map) {
+  constructor(map: Map) {
     this.map = map;
   }
 
-  addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions) {
+  addCommonLayer(data: MapDotBack[], layerName: string, options?: MapOptions): LayerInstance {
     const {
       dotTypeKey = 'level',
       mapColorList,
@@ -54,34 +54,113 @@ export default class GlowwormMap {
         'circle-color-transition': {
           duration: 2,
         },
-        'circle-opacity': circleOpacity,
+        'circle-opacity': circleOpacity ?? 1,
         'circle-radius': (circleRadius) ?? [
           'interpolate',
           ['exponential', 0.1],
           ['zoom'],
-          ...(dotSize ? dotSize : [14.1, 3, 32, 9]), // 小于200m打点变大
+          ...(dotSize ? dotSize : [14.1, 3, 32, 9]),
         ],
-        'circle-stroke-width': (circleStrokeWidth) ?? 0,
+        'circle-stroke-width': (circleStrokeWidth) ?? [
+          'interpolate',
+          ['exponential', 0.1],
+          ['zoom'],
+          14.1,
+          2,
+          32,
+          8,
+        ],
         'circle-stroke-color':
-          (circleStrokeColor) ?? '#ffffff',
+          (circleStrokeColor) ?? [
+            'match',
+            ['get', dotTypeKey],
+            ...mapOpacityColor,
+            'rgba(241,118,163,0.3)',
+          ],
       },
     });
-  }
 
+    const hide = (callback?: Function) => {
+      if (this.map.getLayer(layerName)) {
+        this.map.setLayoutProperty(layerName, 'visibility', 'none');
+      } else {
+        throw new TypeError(`The layer named '${layerName}' does not exist on the map instance`)
+      }
+      callback && callback();
+    }
+    const show = (callback?: Function) => {
+      if (this.map.getLayer(layerName)) {
+        this.map.setLayoutProperty(layerName, 'visibility', 'visible');
+      } else {
+        throw new TypeError(`The layer named '${layerName}' does not exist on the map instance`)
+      }
+      callback && callback();
+    }
+    const remove = (callback?: Function) => {
+      this.remove(layerName);
+      callback && callback();
+    }
+    const updateSource = (data: MapDotBack[], callback?: Function) => {
+      const resData = getStandardMapData(data);
+      if (this.map.getSource(layerName)) {
+        (this.map.getSource(layerName) as GeoJSONSource).setData(resData);
+      }
+      callback && callback();
+      return resData;
+    }
+    return {
+      layerName,
+      updateSource,
+      show,
+      hide,
+      remove,
+    }
+  }
+  private remove(layerName: string | string[]) {
+    if (Array.isArray(layerName)) {
+      layerName.forEach(layer => {
+        this.map.off('click', layer,  (e) => {})
+      })
+    } else {
+      this.map.off('click', layerName,  (e) => {})
+    }
+    const style = this.map.getStyle();
+    if (style && style.layers) {
+      style.layers = Array.isArray(layerName) ?
+        style.layers.filter(item => !layerName.includes(item.id)) :
+        style.layers.filter(item => item.id !== layerName)
+    }
+    if (style && style.sources) {
+      if (Array.isArray(layerName)) {
+        layerName.forEach(layer => {
+          Reflect.deleteProperty(style.sources, layer);
+        })
+      } else {
+        Reflect.deleteProperty(style.sources, layerName);
+      }
+    }
+    this.map.setStyle(style);
+    if (Array.isArray(layerName)) {
+      layerName.forEach(layer => {
+        this.map.getLayer(layer) && this.map.removeLayer(layer);
+        this.map.getSource(layer) && this.map.removeSource(layer);
+      })
+    } else {
+      this.map.getLayer(layerName) && this.map.removeLayer(layerName);
+      this.map.getSource(layerName) && this.map.removeSource(layerName);
+    }
+  }
   addGlowwormLayer(data: MapDotBack[], options: GlowwormMapOptions, callback?: Function) {
     // console.log('Test:', options);
-    // const glowwormLayerName = options?.glowwormLayerName || '';
-    // const glowwormInnerColorList = options?.glowwormInnerColorList || undefined;
-    // const glowwormOutColorList = options?.glowwormOutColorList || undefined;
     const {
       dotTypeKey = 'level',
-      glowwormLayerName,
+      glowwormLayerName = GLOWWORM1,
       glowwormInnerColorList ,
       glowwormOutColorList,
       circleOpacity,
       circleBlur,
     } = options;
-    this.addCommonLayer(data, glowwormLayerName || GLOWWORM1, {
+    const glowworm1Instance = this.addCommonLayer(data, glowwormLayerName || GLOWWORM1, {
       circleOpacity: circleOpacity || 0.4,
       circleBlur: circleBlur || 3,
       circleColor: [
@@ -95,13 +174,14 @@ export default class GlowwormMap {
         'interpolate',
         ['exponential', 0.1],
         ['zoom'],
-        14.1, // 小于200m打点变大
+        14.1,
         14,
         32,
         22,
       ],
+      circleStrokeWidth: 0,
     });
-    this.addCommonLayer(data, GLOWWORM2, {
+    const glowworm2Instance = this.addCommonLayer(data, GLOWWORM2, {
       circleOpacity: circleOpacity || 0.4,
       circleBlur: circleBlur || 3,
       circleColor: [
@@ -114,13 +194,14 @@ export default class GlowwormMap {
         'interpolate',
         ['exponential', 0.1],
         ['zoom'],
-        14.1, // 小于200m打点变大
+        14.1,
         9,
         32,
         12,
       ],
+      circleStrokeWidth: 0,
     });
-    this.addCommonLayer(data, GLOWWORM3, {
+    const glowworm3Instance = this.addCommonLayer(data, GLOWWORM3, {
       circleOpacity: 1,
       circleBlur: 0,
       circleColor: '#ffffff',
@@ -133,13 +214,44 @@ export default class GlowwormMap {
         32,
         2.2,
       ],
+      circleStrokeWidth: 0,
     });
     // setCurrentZoom();
     // callback && this.bindEventGlowwormDot(callback);
+
+    const hide = (callback?: Function) => {
+      glowworm1Instance.hide();
+      glowworm2Instance.hide();
+      glowworm3Instance.hide();
+      callback && callback();
+    }
+    const show = (callback?: Function) => {
+      glowworm1Instance.show();
+      glowworm2Instance.show();
+      glowworm3Instance.show();
+      callback && callback();
+    }
+    const remove = (callback?: Function) => {
+      const layerNames = [glowwormLayerName, GLOWWORM2, GLOWWORM3];
+      this.remove(layerNames);
+      callback && callback();
+    }
+    const updateSource = (data: MapDotBack[], callback?: Function) => {
+      const resData = getStandardMapData(data);
+      this.map.getSource(glowwormLayerName) && (this.map.getSource(glowwormLayerName) as GeoJSONSource).setData(resData);
+      this.map.getSource(GLOWWORM2) && (this.map.getSource(GLOWWORM2) as GeoJSONSource).setData(resData);
+      this.map.getSource(GLOWWORM3) && (this.map.getSource(GLOWWORM3) as GeoJSONSource).setData(resData);
+      callback && callback();
+      return resData;
+    }
+    return {
+      glowwormLayerName,
+      updateSource,
+      show,
+      hide,
+      remove: remove,
+    }
   }
-  // bindEventGlowwormDot(updateSourceDebounce: Function) {
-  //   this.map.on('zoomend', updateSourceDebounce);
-  // }
   addSimpleCityLayer() {
     this.map.addLayer({
       id: 'simple-cities',
