@@ -15,6 +15,7 @@ import {
 } from './data/defaultMapConfigData';
 import {MapOptions} from '../types';
 import type {FeatureCollection} from 'geojson';
+import {southChinaSea} from './data/southChinaSea';
 
 export default class GlowwormMap {
   private map = {} as Map;
@@ -368,6 +369,37 @@ export default class GlowwormMap {
       id: 'taiwan',
       type: 'symbol',
       source: 'taiwan',
+      minzoom: 2,
+      maxzoom: 12,
+      layout: {
+        'text-field': '{title}',
+        'text-font': ['Open Sans Regular'],
+        'text-size': [
+          'interpolate',
+          ['exponential', 0.1],
+          ['zoom'],
+          5,
+          12,
+          10,
+          28,
+        ],
+      },
+      paint: {
+        "text-color": textColor || "rgba(96, 91, 91, 1)",
+      }
+    });
+  }
+  addSouthChinaSea(config?: ChinaSpecialLayerConfig) {
+    const { textColor } = config || {};
+    this.map.addSource('southChinaSea', {
+      type: 'geojson',
+      data: southChinaSea as FeatureCollection,
+      cluster: true,
+    });
+    this.map.addLayer({
+      id: 'southChinaSea',
+      type: 'symbol',
+      source: 'southChinaSea',
       minzoom: 2,
       maxzoom: 12,
       layout: {

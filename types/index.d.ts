@@ -51,4 +51,5 @@ export default class GlowwormMap{
   addSimpleCityLayer(): void;
   addChinaCountryBoundaryLine(json: FeatureCollection): void;
   addSimpleTaiWanTitle(config?: ChinaSpecialLayerConfig): void;
+  addSouthChinaSea(config?: ChinaSpecialLayerConfig): void;
 }
